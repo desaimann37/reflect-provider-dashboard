@@ -1,0 +1,222 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+@using Reflect.Web.Models.ViewModels.Provider.PatientDetails
+@{
+    var rtm = Model.Rtm;
+}
+
+<div class="card custom-card">
+    <div class="card-body d-flex flex-wrap align-items-center justify-content-between gap-3">
+        <div>
+            <div class="fs-16 fw-semibold">Monitoring period @rtm.PeriodLabel</div>
+            <div class="text-muted fs-13">@rtm.DayOfPeriodLabel · Management time counted for @rtm.MonthLabel</div>
+        </div>
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <partial name="_Badge" model="rtm.Readiness" />
+            <a class="btn btn-outline-secondary" asp-controller="Rtm" asp-action="LogTime" asp-route-patientId="@Model.PatientId"><i class="ri-timer-line me-1" aria-hidden="true"></i>Log time</a>
+            @if (rtm.CanSignOff)
+            {
+                <form method="post" asp-controller="Rtm" asp-action="SignOff" class="d-inline">
+                    <input type="hidden" name="PatientId" value="@Model.PatientId" />
+                    <input type="hidden" name="PeriodStart" value="@rtm.PeriodStartIso" />
+                    <button type="button" class="btn btn-primary js-confirm-submit"
+                            data-confirm-title="Sign this RTM period?"
+                            data-confirm-text="@($"You are attesting the documentation for {rtm.PeriodLabel}. {rtm.SignOffSummary} {rtm.SignOffWarning}")"
+                            data-confirm-label="Sign period"
+                            data-confirm-style="success">
+                        <i class="ri-quill-pen-line me-1" aria-hidden="true"></i>Sign off period
+                    </button>
+                </form>
+            }
+            else if (!rtm.IsSigned)
+            {
+                <span class="text-muted fs-12">Sign-off needs at least 2 data days.</span>
+            }
+        </div>
+    </div>
+</div>
+
+@if (rtm.Issues.Count > 0)
+{
+    <div class="alert alert-warning d-flex gap-3 align-items-start" role="status">
+        <i class="ri-error-warning-line fs-20" aria-hidden="true"></i>
+        <div>
+            <div class="fw-semibold">What's needed this period</div>
+            <ul class="mb-0 ps-3 fs-13">
+                @foreach (var issue in rtm.Issues)
+                {
+                    <li>@issue</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+<div class="row g-3">
+    <div class="col-12 col-xl-5">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-list-check-2 me-2" aria-hidden="true"></i>RTM monitoring status</div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-0 rx-metric-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Metric</th>
+                                <th scope="col">Current period</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var metric in rtm.Metrics)
+                            {
+                                <tr>
+                                    <th scope="row" class="fw-normal">
+                                        <div>@metric.Metric</div>
+                                        <div class="text-muted fs-12">@metric.Help</div>
+                                    </th>
+                                    <td>
+                                        @if (metric.Met == true)
+                                        {
+                                            <i class="ri-checkbox-circle-line me-1" aria-hidden="true"></i><span class="visually-hidden">Threshold met: </span>
+                                        }
+                                        <span class="fw-semibold">@metric.Value</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-7">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-file-list-3-line me-2" aria-hidden="true"></i>Billing readiness (CPT 2026)</div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered align-middle mb-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">Code</th>
+                                <th scope="col">Requirement</th>
+                                <th scope="col">This period</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var code in rtm.Codes)
+                            {
+                                <tr>
+                                    <td><span class="rx-code">@code.Code</span></td>
+                                    <td class="fs-13">@code.Description</td>
+                                    <td class="fs-13">
+                                        <div>@code.Evidence</div>
+                                        <div class="text-muted fs-12">@code.Note</div>
+                                    </td>
+                                    <td><partial name="_Badge" model="code.Badge" /></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                <p class="text-muted fs-12 mb-0">Decision support based on the 2026 CPT RTM descriptors, using the CBT device-supply codes for mental-health monitoring. 98978 and 98986 are contractor-priced. Thresholds are configurable. Confirm coverage with your billing and compliance team before submitting a claim.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header justify-content-between">
+        <div class="card-title"><i class="ri-timer-line me-2" aria-hidden="true"></i>Management time, this month and last</div>
+        <a class="btn btn-sm btn-primary-light" asp-controller="Rtm" asp-action="LogTime" asp-route-patientId="@Model.PatientId"><i class="ri-add-line me-1" aria-hidden="true"></i>Log time</a>
+    </div>
+    <div class="card-body">
+        @if (rtm.TimeEntries.Count == 0)
+        {
+            <div class="rx-empty"><i class="ri-timer-line" aria-hidden="true"></i>No time logged yet.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="10">
+                    <thead>
+                        <tr>
+                            <th scope="col" data-priority="1">Date</th>
+                            <th scope="col" data-priority="1">Activity</th>
+                            <th scope="col" data-priority="1">Minutes</th>
+                            <th scope="col">Interactive</th>
+                            <th scope="col">Method</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var t in rtm.TimeEntries)
+                        {
+                            <tr>
+                                <td>@t.ServiceDate</td>
+                                <td>@t.Activity</td>
+                                <td>@t.Minutes</td>
+                                <td>
+                                    @if (t.IsInteractive)
+                                    {
+                                        <span><i class="ri-checkbox-circle-line me-1" aria-hidden="true"></i>Yes</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No</span>
+                                    }
+                                </td>
+                                <td><i class="@t.MethodIcon me-1" aria-hidden="true"></i>@t.Method</td>
+                                <td class="text-wrap">@t.Notes</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="ri-shield-check-line me-2" aria-hidden="true"></i>Previous periods</div>
+    </div>
+    <div class="card-body">
+        @if (rtm.History.Count == 0)
+        {
+            <div class="rx-empty"><i class="ri-history-line" aria-hidden="true"></i>This is the first monitoring period.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-bordered text-nowrap align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Period</th>
+                            <th scope="col">Data days</th>
+                            <th scope="col">Minutes (month)</th>
+                            <th scope="col">Codes attested</th>
+                            <th scope="col">Documentation</th>
+                            <th scope="col">Signed by</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var h in rtm.History)
+                        {
+                            <tr>
+                                <td>@h.Period</td>
+                                <td>@h.DataDays</td>
+                                <td>@h.ManagementMinutes</td>
+                                <td>@h.Codes</td>
+                                <td><partial name="_Badge" model="h.Status" /></td>
+                                <td class="fs-13">@h.SignedBy</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

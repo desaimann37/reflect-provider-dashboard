@@ -1,0 +1,133 @@
+@model Reflect.Web.Models.ViewModels.Provider.RtmWorklist.RtmWorklistViewModel
+@{
+    ViewData["Title"] = "RTM worklist";
+}
+@section Styles {
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">RTM worklist</h1>
+    <p class="text-muted fs-13 mb-0">Remote Therapeutic Monitoring status for each patient's current 30-day period. Management time is counted for @Model.MonthLabel.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label"><i class="ri-quill-pen-line me-1" aria-hidden="true"></i>Ready to sign</span>
+            <div class="rx-kpi-value">@Model.ReadyCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label"><i class="ri-error-warning-line me-1" aria-hidden="true"></i>At risk</span>
+            <div class="rx-kpi-value">@Model.AtRiskCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label"><i class="ri-checkbox-circle-line me-1" aria-hidden="true"></i>On track</span>
+            <div class="rx-kpi-value">@Model.OnTrackCount</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label"><i class="ri-shield-check-line me-1" aria-hidden="true"></i>Signed</span>
+            <div class="rx-kpi-value">@Model.SignedCount</div>
+        </div></div>
+    </div>
+    <div class="col-12 col-lg">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label"><i class="ri-timer-line me-1" aria-hidden="true"></i>Management time</span>
+            <div class="rx-kpi-value">@Model.TotalMinutesThisMonth <span class="fs-14 text-muted">min</span></div>
+            <div class="rx-kpi-sub">All patients, @Model.MonthLabel</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header justify-content-between">
+        <div class="card-title"><i class="ri-calendar-check-line me-2" aria-hidden="true"></i>Current periods <span class="text-muted fs-13 fw-normal ms-1">@Model.Rows.Count shown</span></div>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <label for="filter" class="form-label mb-0 fs-13 text-muted">Show</label>
+            <select id="filter" name="filter" class="form-select form-select-sm js-auto-submit-select" asp-items="Model.FilterOptions"></select>
+            <noscript><button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button></noscript>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="25">
+                <thead>
+                    <tr>
+                        <th scope="col" data-priority="1">Patient</th>
+                        <th scope="col">Period</th>
+                        <th scope="col">Days left</th>
+                        <th scope="col">Data days</th>
+                        <th scope="col">Minutes</th>
+                        <th scope="col">Live call</th>
+                        <th scope="col">Supported codes</th>
+                        <th scope="col" data-priority="3">Status</th>
+                        <th scope="col">Documentation</th>
+                        <th scope="col">Next step</th>
+                        <th scope="col" data-priority="2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <a class="fw-semibold" asp-controller="Patients" asp-action="Details" asp-route-id="@row.PatientId" asp-route-tab="rtm">@row.Name</a>
+                                <div class="text-muted fs-12">@row.Mrn</div>
+                            </td>
+                            <td data-order="@row.PeriodEndSort">@row.Period</td>
+                            <td>@row.DaysLeft</td>
+                            <td data-order="@row.DataDays">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress rx-progress flex-grow-1" role="progressbar" aria-label="Data days" aria-valuenow="@row.DataDays" aria-valuemin="0" aria-valuemax="16">
+                                        <div class="progress-bar @(row.DataDays >= 16 ? "rx-met" : "rx-partial")" style="width: @(row.DataDaysPercent)%"></div>
+                                    </div>
+                                    <span class="fs-12">@row.DataDays / 16</span>
+                                </div>
+                            </td>
+                            <td>@row.ManagementMinutes</td>
+                            <td>
+                                @if (row.HasCall)
+                                {
+                                    <span><i class="ri-phone-line me-1" aria-hidden="true"></i>Yes</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="ri-close-circle-line me-1" aria-hidden="true"></i>No</span>
+                                }
+                            </td>
+                            <td>
+                                @if (row.Codes.Count == 0)
+                                {
+                                    <span class="text-muted fs-13">None yet</span>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var code in row.Codes)
+                                        {
+                                            <span class="rx-code">@code</span>
+                                        }
+                                    </div>
+                                }
+                            </td>
+                            <td data-order="@row.ReadinessSort"><partial name="_Badge" model="row.Readiness" /></td>
+                            <td><partial name="_Badge" model="row.Documentation" /></td>
+                            <td class="text-wrap fs-13 rx-next-step">@row.NextStep</td>
+                            <td>
+                                <a class="btn btn-sm btn-primary-light" asp-controller="Patients" asp-action="Details" asp-route-id="@row.PatientId" asp-route-tab="rtm"><i class="ri-eye-line me-1" aria-hidden="true"></i>Open</a>
+                                <a class="btn btn-sm btn-outline-secondary" asp-action="LogTime" asp-route-patientId="@row.PatientId"><i class="ri-timer-line me-1" aria-hidden="true"></i>Log time</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <p class="text-muted fs-12 mb-0 mt-3">Decision support only. Data days come from completed Reflect sessions and patient-reported check-ins; management time and live calls come from time you log. Confirm billing with your compliance team.</p>
+    </div>
+</div>

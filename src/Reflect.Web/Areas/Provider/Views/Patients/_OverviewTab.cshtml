@@ -1,0 +1,158 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0">
+            <div class="card-body">
+                <span class="rx-kpi-label">Data days this period</span>
+                <div class="rx-kpi-value">@Model.DataDays <span class="fs-14 text-muted">/ 16</span></div>
+                <div class="progress rx-progress mt-2" role="progressbar" aria-label="Data days toward 16" aria-valuenow="@Model.DataDays" aria-valuemin="0" aria-valuemax="16">
+                    <div class="progress-bar @(Model.DataDays >= 16 ? "rx-met" : "rx-partial")" style="width: @(Model.DataDaysPercent)%"></div>
+                </div>
+                <div class="rx-kpi-sub">@Model.DaysLeft days left in period</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0">
+            <div class="card-body">
+                <span class="rx-kpi-label">Sessions, 7 days</span>
+                <div class="rx-kpi-value">@Model.Sessions7Days</div>
+                <div class="rx-kpi-sub">
+                    @if (Model.Sessions7Days >= Model.TargetSessionsPerWeek)
+                    {
+                        <i class="ri-checkbox-circle-line me-1" aria-hidden="true"></i><text>Meets goal of @Model.TargetSessionsPerWeek</text>
+                    }
+                    else
+                    {
+                        <i class="ri-error-warning-line me-1" aria-hidden="true"></i><text>Below goal of @Model.TargetSessionsPerWeek</text>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0">
+            <div class="card-body">
+                <span class="rx-kpi-label">Engagement, 30 days</span>
+                <div class="rx-kpi-value">@ProviderUi.Minutes(Model.Minutes30Days)</div>
+                <div class="rx-kpi-sub">@Model.Sessions30Days sessions</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0">
+            <div class="card-body">
+                <span class="rx-kpi-label">Mood change per session</span>
+                <div class="rx-kpi-value">@Model.MoodLiftLabel</div>
+                <div class="rx-kpi-sub">Average, before to after (1-10), 30 days</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-5">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-lightbulb-line me-2" aria-hidden="true"></i>Clinical insights</div>
+            </div>
+            <div class="card-body">
+                @if (Model.Insights.Count == 0)
+                {
+                    <div class="rx-empty"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>No patterns flagged.</div>
+                }
+                else
+                {
+                    <ul class="rx-list">
+                        @foreach (var insight in Model.Insights)
+                        {
+                            <li>
+                                <span class="avatar avatar-sm avatar-rounded bg-@(insight.Severity.Color)-transparent"><i class="@insight.Icon" aria-hidden="true"></i></span>
+                                <div class="rx-min-w-0">
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <span class="fw-semibold">@insight.Title</span>
+                                        <partial name="_Badge" model="insight.Severity" />
+                                    </div>
+                                    <div class="text-muted fs-13">@insight.Detail</div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+                <p class="text-muted fs-12 mb-0 mt-3">Rule-based prompts for clinical review, not diagnoses. See the methodology in the project docs.</p>
+            </div>
+        </div>
+
+        <div class="card custom-card" id="briefCard">
+            <div class="card-header justify-content-between">
+                <div class="card-title"><i class="ri-sparkling-line me-2" aria-hidden="true"></i>Pre-session brief</div>
+                <button type="button" class="btn btn-sm btn-primary" id="generateBriefBtn"><i class="ri-sparkling-line me-1" aria-hidden="true"></i><span>Generate brief</span></button>
+            </div>
+            <div class="card-body">
+                @Html.AntiForgeryToken()
+                <p class="text-muted fs-13 mb-0" id="briefEmpty">A short summary of recent engagement, check-ins, questionnaires and flags to prepare for the next session. Only de-identified data is used.</p>
+                <div id="briefResult" hidden tabindex="-1" aria-live="polite">
+                    <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                        <span id="briefSource" class="badge"></span>
+                        <span class="text-muted fs-12" id="briefGeneratedAt"></span>
+                    </div>
+                    <p class="fw-semibold mb-2" id="briefHeadline"></p>
+                    <h2 class="fs-13 text-muted mb-1">Highlights</h2>
+                    <ul class="rx-brief-list fs-14 mb-3" id="briefHighlights"></ul>
+                    <h2 class="fs-13 text-muted mb-1">Suggested topics</h2>
+                    <ul class="rx-brief-list fs-14 mb-3" id="briefTopics"></ul>
+                    <p class="fs-12 text-muted mb-0" id="briefNotice"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12 col-xl-7">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between">
+                <div class="card-title"><i class="ri-bar-chart-2-line me-2" aria-hidden="true"></i>Engagement by week</div>
+                <div class="btn-group btn-group-sm rx-range-group" role="group" aria-label="Chart range">
+                    <button type="button" class="btn btn-outline-secondary" data-weeks="4" aria-pressed="false">4 wk</button>
+                    <button type="button" class="btn btn-outline-secondary active" data-weeks="12" aria-pressed="true">12 wk</button>
+                    <button type="button" class="btn btn-outline-secondary" data-weeks="26" aria-pressed="false">26 wk</button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="rx-chart">
+                    <canvas id="engagementChart" role="img" aria-label="@Model.EngagementSummary" data-chart="@Model.EngagementChartJson"></canvas>
+                </div>
+                <p class="text-muted fs-12 mb-0 mt-2"><span id="engagementSummary">@Model.EngagementSummary</span> Solid: VR. Striped: mobile.</p>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-lg-6">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ri-palette-line me-2" aria-hidden="true"></i>Modules used, 30 days</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="rx-chart rx-chart-sm">
+                            <canvas id="moduleChart" role="img" aria-label="@Model.ModuleSummary" data-chart="@Model.ModuleChartJson"></canvas>
+                        </div>
+                        <p class="visually-hidden">@Model.ModuleSummary</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-lg-6">
+                <div class="card custom-card">
+                    <div class="card-header">
+                        <div class="card-title"><i class="ri-emotion-line me-2" aria-hidden="true"></i>Mood before and after</div>
+                    </div>
+                    <div class="card-body">
+                        <div class="rx-chart rx-chart-sm">
+                            <canvas id="moodChart" role="img" aria-label="@Model.MoodSummary" data-chart="@Model.MoodChartJson"></canvas>
+                        </div>
+                        <p class="visually-hidden">@Model.MoodSummary</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,150 @@
+@* STAND-IN page shell. On merge, the Provider views render inside the real _Layout.cshtml and this file is dropped. *@
+@using Reflect.Web.Standins.Auth
+@inject ICurrentUserService CurrentUser
+@inject TimeProvider Clock
+@{
+    var title = ViewData["Title"] as string ?? "Reflect XR";
+    var parentTitle = ViewData["ParentTitle"] as string;
+    var parentUrl = ViewData["ParentUrl"] as string;
+    var demoUser = DemoUsers.Find(CurrentUser.UserId?.ToString()) ?? DemoUsers.Okafor;
+    var initials = string.Concat(demoUser.DisplayName.Replace("Dr. ", string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(p => p[0])).ToUpperInvariant();
+    var toastMessage = TempData["ToastMessage"] as string ?? string.Empty;
+    var toastType = TempData["ToastType"] as string ?? "info";
+    var today = Clock.GetUtcNow().ToEasternDate().ToUsLongDateString();
+    var isProvider = CurrentUser.IsInRole(ProviderRoles.Provider);
+}
+<!DOCTYPE html>
+<html lang="en" data-theme-mode="light" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@title · Reflect XR</title>
+    <link rel="icon" type="image/svg+xml" href="~/standins/img/reflect-mark.svg" />
+    <script src="~/standins/js/theme-init.js"></script>
+    <link rel="stylesheet" href="~/assets/libs/bootstrap/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/assets/libs/remixicon/fonts/remixicon.css" />
+    <link rel="stylesheet" href="~/assets/libs/toastr/toastr.min.css" />
+    <link rel="stylesheet" href="~/assets/libs/sweetalert2/sweetalert2.min.css" />
+    <link rel="stylesheet" href="~/assets/libs/datatables/css/dataTables.bootstrap5.min.css" />
+    <link rel="stylesheet" href="~/assets/libs/datatables/css/responsive.bootstrap5.min.css" />
+    <link rel="stylesheet" href="~/standins/css/theme-standin.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/standins/css/layout-standin.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body data-toast-message="@toastMessage" data-toast-type="@toastType">
+    <a class="visually-hidden-focusable rx-skip-link" href="#main-content">Skip to main content</a>
+    <div class="rx-shell">
+        <aside class="rx-sidebar" id="rxSidebar" aria-label="Main navigation">
+            <div class="rx-sidebar-brand">
+                <a href="/" aria-label="Reflect XR home">
+                    <img src="~/standins/img/reflect-logo-inverse.svg" alt="Reflect XR by Persistent Technology" class="rx-brand-logo" />
+                    <img src="~/standins/img/reflect-mark.svg" alt="" class="rx-brand-mark" />
+                </a>
+            </div>
+            @if (isProvider)
+            {
+                <nav aria-label="Provider">
+                    @await Component.InvokeAsync("SidebarMenu")
+                </nav>
+            }
+        </aside>
+        <div class="rx-sidebar-backdrop" data-rx-sidebar-close></div>
+
+        <div class="rx-main">
+            <header class="rx-header">
+                <button type="button" class="rx-header-btn" id="rxSidebarToggle" aria-label="Toggle navigation" aria-controls="rxSidebar" aria-expanded="true">
+                    <i class="ri-menu-fold-line" aria-hidden="true"></i>
+                </button>
+                <span class="badge bg-warning-transparent text-warning rx-demo-chip d-none d-md-inline-flex align-items-center">
+                    <i class="ri-flask-line me-1" aria-hidden="true"></i>Demo · synthetic data
+                </span>
+                <div class="ms-auto d-flex align-items-center gap-1">
+                    <div class="dropdown">
+                        <button type="button" class="rx-header-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Notifications" title="Notifications">
+                            <i class="ri-notification-3-line" aria-hidden="true"></i>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 16rem;">
+                            <div class="fw-semibold mb-1">Notifications</div>
+                            <div class="text-muted fs-13">No new notifications. The real app's SignalR bell replaces this stand-in.</div>
+                        </div>
+                    </div>
+                    <button type="button" class="rx-header-btn" id="rxThemeToggle" aria-label="Switch to dark mode" title="Switch to dark mode">
+                        <i class="ri-moon-line" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" class="rx-header-btn" data-bs-toggle="offcanvas" data-bs-target="#rxA11yPanel" aria-controls="rxA11yPanel" aria-label="Accessibility settings" title="Accessibility settings">
+                        <i class="ri-eye-line" aria-hidden="true"></i>
+                    </button>
+                    <div class="dropdown">
+                        <button type="button" class="rx-header-btn rx-profile-btn" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Profile menu" title="Profile menu">
+                            <span class="avatar avatar-rounded bg-primary-transparent">@initials</span>
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end" style="min-width: 17rem;">
+                            <div class="px-3 py-2">
+                                <div class="fw-semibold">@demoUser.DisplayName</div>
+                                <div class="text-muted fs-12">@demoUser.Email</div>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <span class="dropdown-item-text text-muted fs-12">Profile (real app)</span>
+                            <div class="dropdown-divider"></div>
+                            <h6 class="dropdown-header">Switch demo user</h6>
+                            <form method="post" asp-area="" asp-controller="DemoUser" asp-action="Switch">
+                                <input type="hidden" name="returnUrl" value="/" />
+                                @foreach (var user in DemoUsers.All)
+                                {
+                                    <button type="submit" name="userId" value="@user.UserId" class="dropdown-item d-flex align-items-start gap-2 @(user.UserId == demoUser.UserId ? "active" : null)">
+                                        <i class="@(user.UserId == demoUser.UserId ? "ri-checkbox-circle-line" : "ri-user-line") mt-1" aria-hidden="true"></i>
+                                        <span>
+                                            <span class="d-block">@user.DisplayName</span>
+                                            <span class="d-block text-muted fs-12">@user.Description</span>
+                                        </span>
+                                    </button>
+                                }
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="rx-breadcrumb">
+                <nav aria-label="Breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/"><i class="ri-home-4-line me-1" aria-hidden="true"></i>Provider</a></li>
+                        @if (!string.IsNullOrEmpty(parentTitle))
+                        {
+                            <li class="breadcrumb-item"><a href="@parentUrl">@parentTitle</a></li>
+                        }
+                        <li class="breadcrumb-item active" aria-current="page">@title</li>
+                    </ol>
+                </nav>
+                <span>@today</span>
+            </div>
+
+            <main id="main-content" class="rx-content" tabindex="-1">
+                @RenderBody()
+            </main>
+            <footer class="rx-footer">
+                Reflect XR Provider extension demo · all patient data is synthetic · stand-in page shell
+            </footer>
+        </div>
+    </div>
+
+    <partial name="_StandinAccessibilityPanel" />
+
+    <div class="rx-loading-overlay" id="rxLoadingOverlay" role="status" aria-live="polite" hidden>
+        <div class="spinner-border" aria-hidden="true"></div>
+        <div id="rxLoadingMessage">Loading...</div>
+    </div>
+
+    <script src="~/assets/libs/jquery/jquery.min.js"></script>
+    <script src="~/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/libs/toastr/toastr.min.js"></script>
+    <script src="~/assets/libs/sweetalert2/sweetalert2.min.js"></script>
+    <script src="~/assets/libs/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="~/assets/libs/datatables/js/dataTables.bootstrap5.min.js"></script>
+    <script src="~/assets/libs/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="~/assets/libs/datatables/js/responsive.bootstrap5.min.js"></script>
+    <script src="~/standins/js/shared-services-standin.js" asp-append-version="true"></script>
+    <script src="~/standins/js/layout-standin.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

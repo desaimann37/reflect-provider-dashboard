@@ -1,0 +1,166 @@
+@model Reflect.Web.Models.ViewModels.Provider.Outcomes.OutcomesReportViewModel
+@{
+    ViewData["Title"] = "Outcomes report";
+}
+@section Styles {
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">Outcomes report</h1>
+    <p class="text-muted fs-13 mb-0">Is Reflect use moving with clinical improvement across your caseload of @Model.Patients patients? Correlational, not causal.</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label">Average mood change per session</span>
+            <div class="rx-kpi-value">@Model.AverageMoodLift</div>
+            <div class="rx-kpi-sub">@Model.CheckInPairs before/after check-ins</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label">Sessions with improved mood</span>
+            <div class="rx-kpi-value">@Model.ShareImproved</div>
+            <div class="rx-kpi-sub">After-session mood higher than before</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label">PHQ-9 improved 5+ points</span>
+            <div class="rx-kpi-value">@Model.MeaningfulImprovement</div>
+            <div class="rx-kpi-sub">Patients with a repeat PHQ-9</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="card custom-card rx-kpi h-100 mb-0"><div class="card-body">
+            <span class="rx-kpi-label">Median sessions per week</span>
+            <div class="rx-kpi-value">@Model.MedianWeeklySessions</div>
+            <div class="rx-kpi-sub">Since each patient's enrollment</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-palette-line me-2" aria-hidden="true"></i>Mood change by module</div>
+            </div>
+            <div class="card-body">
+                <div class="rx-chart rx-chart-lg">
+                    <canvas id="moduleLiftChart" role="img" aria-label="@Model.ModuleChartSummary" data-chart="@Model.ModuleChartJson"></canvas>
+                </div>
+                <p class="text-muted fs-12 mb-0 mt-2">@Model.ModuleChartSummary Solid: VR modules. Striped: mobile modules. Modules with fewer than 5 check-ins are hidden.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-5">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-bar-chart-grouped-line me-2" aria-hidden="true"></i>PHQ-9 change by engagement</div>
+            </div>
+            <div class="card-body">
+                <div class="rx-chart rx-chart-lg">
+                    <canvas id="tierChart" role="img" aria-label="@Model.TierChartSummary" data-chart="@Model.TierChartJson"></canvas>
+                </div>
+                <p class="text-muted fs-12 mb-0 mt-2">@Model.TierChartSummary</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-goggles-line me-2" aria-hidden="true"></i>VR compared with mobile</div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-nowrap align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Platform</th>
+                                <th scope="col">Sessions</th>
+                                <th scope="col">Avg length</th>
+                                <th scope="col">Completed</th>
+                                <th scope="col">Avg mood change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in Model.Platforms)
+                            {
+                                <tr>
+                                    <td><partial name="_Badge" model="p.Platform" /></td>
+                                    <td>@p.Sessions</td>
+                                    <td>@p.AverageMinutes</td>
+                                    <td>@p.CompletionRate</td>
+                                    <td>@p.AverageLift <span class="text-muted fs-12">(n=@p.CheckInPairs)</span></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-team-line me-2" aria-hidden="true"></i>Engagement levels</div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-nowrap align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th scope="col">Engagement</th>
+                                <th scope="col">Patients</th>
+                                <th scope="col">With repeat PHQ-9</th>
+                                <th scope="col">Avg PHQ-9 change</th>
+                                <th scope="col">Improved 5+</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var t in Model.Tiers)
+                            {
+                                <tr>
+                                    <td>@t.Tier</td>
+                                    <td>@t.Patients</td>
+                                    <td>@t.WithRepeatMeasure</td>
+                                    <td>@t.AverageChange</td>
+                                    <td>@t.MeaningfulImprovers</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="ri-information-line me-2" aria-hidden="true"></i>How to read this report</div>
+    </div>
+    <div class="card-body fs-13">
+        <ul class="mb-0 ps-3">
+            <li>Mood change compares the patient's in-app check-in before and after the same session (1 to 10, higher is better).</li>
+            <li>PHQ-9 change is the latest score minus the first score since enrollment; negative numbers are improvement. A drop of 5 or more points is generally treated as clinically meaningful.</li>
+            <li>These figures show where engagement and improvement move together. They don't prove Reflect caused the change: patients who feel better may also engage more, and other treatment continues alongside.</li>
+            <li>All data in this demo is synthetic.</li>
+        </ul>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/libs/chart.js/chart.umd.js"></script>
+    <script src="~/js/controllers/provider/providerCharts.js" asp-append-version="true"></script>
+    <script src="~/js/controllers/provider/outcomesController.js" asp-append-version="true"></script>
+    <script nonce="@Context.GetCspNonce()">
+        OutcomesController.init();
+    </script>
+}

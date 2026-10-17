@@ -1,0 +1,42 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+@{
+    var plan = Model.CarePlan;
+}
+
+<div class="card custom-card">
+    <div class="card-header justify-content-between">
+        <div class="card-title"><i class="ri-file-list-3-line me-2" aria-hidden="true"></i>Care plan and RTM enrollment</div>
+        <a class="btn btn-sm btn-primary" asp-controller="CarePlan" asp-action="Edit" asp-route-id="@Model.PatientId"><i class="ri-edit-line me-1" aria-hidden="true"></i>Edit</a>
+    </div>
+    <div class="card-body">
+        <dl class="rx-dl">
+            <dt>Status</dt>
+            <dd><partial name="_Badge" model="plan.Status" /></dd>
+            <dt>Program</dt>
+            <dd>@plan.Program</dd>
+            <dt>Primary diagnosis</dt>
+            <dd>@plan.Diagnosis</dd>
+            <dt>Consent date</dt>
+            <dd>@plan.ConsentDate</dd>
+            <dt>Monitoring start</dt>
+            <dd>@plan.MonitoringStart</dd>
+            <dt>Setup and education (98975)</dt>
+            <dd>@plan.SetupCompleted</dd>
+            <dt>Session goal</dt>
+            <dd>@plan.TargetSessions</dd>
+            <dt>Data review cadence</dt>
+            <dd>@plan.ReviewCadence</dd>
+            <dt>Goals</dt>
+            <dd>@plan.Goals</dd>
+            <dt>Linked Reflect account</dt>
+            <dd>
+                <span>@plan.AppAccount</span>
+                <div class="text-muted fs-12">Pseudonymous app key. Analytics data never contains the patient's name.</div>
+            </dd>
+            <dt>Data sharing consent</dt>
+            <dd>@plan.ConsentScope</dd>
+            <dt>Last updated</dt>
+            <dd>@plan.LastModified</dd>
+        </dl>
+    </div>
+</div>

@@ -1,0 +1,101 @@
+@model Reflect.Web.Models.ViewModels.Provider.EditCarePlan.EditCarePlanViewModel
+@{
+    ViewData["Title"] = "Edit care plan";
+    ViewData["ParentTitle"] = Model.PatientName;
+    ViewData["ParentUrl"] = Url.Action("Details", "Patients", new { id = Model.PatientId, tab = "careplan" });
+}
+@section Styles {
+    <link rel="stylesheet" href="~/assets/libs/flatpickr/flatpickr.min.css" />
+    <link rel="stylesheet" href="~/assets/libs/choices.js/choices.min.css" />
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">Edit care plan</h1>
+    <p class="text-muted fs-13 mb-0">@Model.PatientName · @Model.Mrn</p>
+</div>
+
+<div class="row">
+    <div class="col-12 col-xl-9">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-file-list-3-line me-2" aria-hidden="true"></i>Care plan and RTM enrollment</div>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="Edit" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="PatientId" />
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="ProgramName" class="form-label"></label>
+                            <select asp-for="ProgramName" class="form-select" asp-items="Model.ProgramOptions">
+                                <option value="">Choose a program</option>
+                            </select>
+                            <span asp-validation-for="ProgramName" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select" asp-items="Model.StatusOptions"></select>
+                            <div class="form-text">Pausing stops RTM tracking for this patient.</div>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="PrimaryDiagnosisCode" class="form-label"></label>
+                            <select asp-for="PrimaryDiagnosisCode" class="form-select" asp-items="Model.DiagnosisOptions">
+                                <option value="">Choose a diagnosis</option>
+                            </select>
+                            <span asp-validation-for="PrimaryDiagnosisCode" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label asp-for="ConsentDate" class="form-label"></label>
+                            <input asp-for="ConsentDate" class="form-control" autocomplete="off" placeholder="M/D/YYYY" />
+                            <span asp-validation-for="ConsentDate" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label asp-for="MonitoringStartDate" class="form-label"></label>
+                            <input asp-for="MonitoringStartDate" class="form-control" autocomplete="off" placeholder="M/D/YYYY" aria-describedby="startHelp" />
+                            <div class="form-text" id="startHelp">30-day monitoring periods start on this date.</div>
+                            <span asp-validation-for="MonitoringStartDate" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <label asp-for="SetupCompletedOn" class="form-label"></label>
+                            <input asp-for="SetupCompletedOn" class="form-control" autocomplete="off" placeholder="M/D/YYYY" aria-describedby="setupHelp" />
+                            <div class="form-text" id="setupHelp">Leave blank if not done yet.</div>
+                            <span asp-validation-for="SetupCompletedOn" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="TargetSessionsPerWeek" class="form-label"></label>
+                            <input asp-for="TargetSessionsPerWeek" class="form-control" type="number" min="1" max="14" inputmode="numeric" />
+                            <span asp-validation-for="TargetSessionsPerWeek" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="ReviewCadenceDays" class="form-label"></label>
+                            <select asp-for="ReviewCadenceDays" class="form-select" asp-items="Model.CadenceOptions">
+                                <option value="">Choose a cadence</option>
+                            </select>
+                            <span asp-validation-for="ReviewCadenceDays" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Goals" class="form-label"></label>
+                            <textarea asp-for="Goals" class="form-control" rows="4" maxlength="1000"></textarea>
+                            <span asp-validation-for="Goals" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="rx-page-actions mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="ri-save-line me-1" aria-hidden="true"></i>Save care plan</button>
+                        <a class="btn btn-outline-secondary" asp-controller="Patients" asp-action="Details" asp-route-id="@Model.PatientId" asp-route-tab="careplan">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="~/assets/libs/choices.js/choices.min.js"></script>
+    <script src="~/js/controllers/provider/carePlanEditController.js" asp-append-version="true"></script>
+    <script nonce="@Context.GetCspNonce()">
+        CarePlanEditController.init({ maxDate: '@Model.MaxDate' });
+    </script>
+}

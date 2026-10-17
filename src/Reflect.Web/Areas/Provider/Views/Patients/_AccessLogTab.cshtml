@@ -1,0 +1,32 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="ri-shield-keyhole-line me-2" aria-hidden="true"></i>PHI access log</div>
+        <span class="text-muted fs-13">25 most recent</span>
+    </div>
+    <div class="card-body">
+        <p class="text-muted fs-13">Every view of this record and every AI brief request is recorded with the user and time, alongside the app's automatic audit of changes.</p>
+        <div class="table-responsive">
+            <table class="table table-bordered text-nowrap align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col">When (ET)</th>
+                        <th scope="col">User</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var a in Model.AccessLog)
+                    {
+                        <tr>
+                            <td>@a.When</td>
+                            <td>@a.User</td>
+                            <td>@a.Action</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

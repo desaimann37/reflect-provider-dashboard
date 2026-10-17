@@ -1,0 +1,33 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+
+<div class="card custom-card">
+    <div class="card-header justify-content-between">
+        <div class="card-title"><i class="ri-sticky-note-line me-2" aria-hidden="true"></i>Clinical notes</div>
+        <a class="btn btn-sm btn-primary" asp-controller="Notes" asp-action="Create" asp-route-patientId="@Model.PatientId"><i class="ri-sticky-note-add-line me-1" aria-hidden="true"></i>Add note</a>
+    </div>
+    <div class="card-body">
+        @if (Model.Notes.Count == 0)
+        {
+            <div class="rx-empty"><i class="ri-sticky-note-line" aria-hidden="true"></i>No notes yet.</div>
+        }
+        else
+        {
+            <ul class="rx-list">
+                @foreach (var note in Model.Notes)
+                {
+                    <li>
+                        <span class="avatar avatar-sm avatar-rounded bg-info-transparent"><i class="ri-sticky-note-line" aria-hidden="true"></i></span>
+                        <div class="rx-min-w-0 flex-grow-1">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
+                                <span class="fw-semibold">@note.Title</span>
+                                <span class="badge bg-info-transparent text-info"><i class="ri-price-tag-3-line me-1" aria-hidden="true"></i>@note.Type</span>
+                            </div>
+                            <div class="text-muted fs-12 mb-1">@note.Author · @note.AuthoredAt</div>
+                            <div class="fs-14 rx-note-body">@note.Body</div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>

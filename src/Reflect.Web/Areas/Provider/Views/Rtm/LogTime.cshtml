@@ -1,0 +1,92 @@
+@model Reflect.Web.Models.ViewModels.Provider.LogTime.LogTimeViewModel
+@{
+    ViewData["Title"] = "Log management time";
+    ViewData["ParentTitle"] = Model.PatientName;
+    ViewData["ParentUrl"] = Url.Action("Details", "Patients", new { id = Model.PatientId, tab = "rtm" });
+}
+@section Styles {
+    <link rel="stylesheet" href="~/assets/libs/flatpickr/flatpickr.min.css" />
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">Log management time</h1>
+    <p class="text-muted fs-13 mb-0">@Model.PatientName · @Model.Mrn</p>
+</div>
+
+<div class="row">
+    <div class="col-12 col-xl-8">
+        <div class="alert alert-info d-flex gap-3 align-items-start" role="status">
+            <i class="ri-information-line fs-20" aria-hidden="true"></i>
+            <div class="fs-13">
+                So far in @Model.MonthLabel: <strong>@Model.MonthMinutes minutes</strong>,
+                @(Model.MonthHasCall ? "including a real-time interactive communication." : "with no real-time interactive communication yet.")
+                98979 needs 10 minutes and 98980 needs 20 minutes in the calendar month, each with at least one live call.
+            </div>
+        </div>
+
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-timer-line me-2" aria-hidden="true"></i>Time entry</div>
+            </div>
+            <div class="card-body">
+                <form method="post" asp-action="LogTime" novalidate>
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+                    <input type="hidden" asp-for="PatientId" />
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <label asp-for="ServiceDate" class="form-label"></label>
+                            <input asp-for="ServiceDate" class="form-control" autocomplete="off" placeholder="M/D/YYYY" aria-describedby="serviceDateHelp" />
+                            <div class="form-text" id="serviceDateHelp">US Eastern date the work was done.</div>
+                            <span asp-validation-for="ServiceDate" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Minutes" class="form-label"></label>
+                            <input asp-for="Minutes" class="form-control" type="number" min="1" max="120" inputmode="numeric" />
+                            <span asp-validation-for="Minutes" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label asp-for="Activity" class="form-label"></label>
+                            <select asp-for="Activity" class="form-select" asp-items="Model.ActivityOptions">
+                                <option value="">Choose an activity</option>
+                            </select>
+                            <span asp-validation-for="Activity" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-check">
+                                <input asp-for="IsInteractiveCommunication" class="form-check-input" />
+                                <label asp-for="IsInteractiveCommunication" class="form-check-label"></label>
+                            </div>
+                            <div class="form-text">Real-time, two-way audio (video optional). Secure messages don't count.</div>
+                        </div>
+                        <div class="col-12 col-md-6" id="methodGroup">
+                            <label asp-for="CommunicationMethod" class="form-label"></label>
+                            <select asp-for="CommunicationMethod" class="form-select" asp-items="Model.MethodOptions">
+                                <option value="None">Choose a method</option>
+                            </select>
+                            <span asp-validation-for="CommunicationMethod" class="field-validation-error"></span>
+                        </div>
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label"></label>
+                            <textarea asp-for="Notes" class="form-control" rows="3" maxlength="1000" placeholder="What did you review or discuss?"></textarea>
+                            <span asp-validation-for="Notes" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="rx-page-actions mt-4">
+                        <button type="submit" class="btn btn-primary"><i class="ri-save-line me-1" aria-hidden="true"></i>Save time entry</button>
+                        <a class="btn btn-outline-secondary" asp-controller="Patients" asp-action="Details" asp-route-id="@Model.PatientId" asp-route-tab="rtm">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="~/assets/libs/flatpickr/flatpickr.min.js"></script>
+    <script src="~/js/controllers/provider/logTimeController.js" asp-append-version="true"></script>
+    <script nonce="@Context.GetCspNonce()">
+        LogTimeController.init({ minDate: '@Model.MinDate', maxDate: '@Model.MaxDate' });
+    </script>
+}

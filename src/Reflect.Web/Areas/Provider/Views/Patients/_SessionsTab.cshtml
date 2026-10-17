@@ -1,0 +1,48 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="ri-history-line me-2" aria-hidden="true"></i>Sessions, last 90 days</div>
+        <span class="text-muted fs-13">@Model.Sessions.Count sessions from Reflect XR and Reflect Mobile</span>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="15">
+                <thead>
+                    <tr>
+                        <th scope="col" data-priority="1">Date and time (ET)</th>
+                        <th scope="col" data-priority="2">Platform</th>
+                        <th scope="col" data-priority="1">Module</th>
+                        <th scope="col">Duration</th>
+                        <th scope="col">Mood before → after</th>
+                        <th scope="col">Completed</th>
+                        <th scope="col">Creations saved</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var s in Model.Sessions)
+                    {
+                        <tr>
+                            <td data-order="@s.StartedAtSort">@s.StartedAt</td>
+                            <td><partial name="_Badge" model="s.Platform" /></td>
+                            <td>@s.ModuleName</td>
+                            <td data-order="@s.DurationMinutes">@s.Duration</td>
+                            <td>@s.MoodChange</td>
+                            <td>
+                                @if (s.Completed)
+                                {
+                                    <span><i class="ri-checkbox-circle-line me-1" aria-hidden="true"></i>Completed</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted"><i class="ri-close-circle-line me-1" aria-hidden="true"></i>Exited early</span>
+                                }
+                            </td>
+                            <td>@s.CreationsSaved</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

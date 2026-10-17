@@ -1,0 +1,19 @@
+@* STAND-IN renderer for the real app's JSON sidebar menu format. *@
+@model List<Reflect.Web.Standins.Menu.SidebarMenuItem>
+<ul class="rx-menu">
+    @foreach (var item in Model)
+    {
+        if (item.IsCategory)
+        {
+            <li class="rx-menu-category">@item.Label</li>
+        }
+        else
+        {
+            <li>
+                <a class="rx-menu-link" href="@item.Url" title="@item.Label">
+                    <i class="@item.Icon" aria-hidden="true"></i><span class="rx-menu-label">@item.Label</span>
+                </a>
+            </li>
+        }
+    }
+</ul>

@@ -1,0 +1,122 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+
+<div class="card custom-card">
+    <div class="card-header">
+        <div class="card-title"><i class="ri-line-chart-line me-2" aria-hidden="true"></i>PHQ-9 and GAD-7 over time</div>
+    </div>
+    <div class="card-body">
+        <div class="rx-chart">
+            <canvas id="measuresChart" role="img" aria-label="@Model.MeasuresSummary" data-chart="@Model.MeasuresChartJson"></canvas>
+        </div>
+        <p class="text-muted fs-12 mb-0 mt-2">@Model.MeasuresSummary Lower is better. Dashed guides mark PHQ-9 severity bands (5 mild, 10 moderate, 15 moderately severe, 20 severe). Completed by the patient in Reflect Mobile every two weeks.</p>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-survey-line me-2" aria-hidden="true"></i>Questionnaires</div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="10">
+                        <thead>
+                            <tr>
+                                <th scope="col" data-priority="1">Date</th>
+                                <th scope="col" data-priority="1">Measure</th>
+                                <th scope="col" data-priority="1">Score</th>
+                                <th scope="col">Severity</th>
+                                <th scope="col">Change</th>
+                                <th scope="col">PHQ-9 item 9</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.Measures)
+                            {
+                                <tr>
+                                    <td data-order="@m.SortKey">@m.Date</td>
+                                    <td>@m.Measure</td>
+                                    <td>@m.Score</td>
+                                    <td><partial name="_Badge" model="m.Band" /></td>
+                                    <td class="rx-change">
+                                        @if (m.ChangeDirection == "up")
+                                        {
+                                            <i class="ri-arrow-up-line me-1" aria-hidden="true"></i>
+                                        }
+                                        else if (m.ChangeDirection == "down")
+                                        {
+                                            <i class="ri-arrow-down-line me-1" aria-hidden="true"></i>
+                                        }
+                                        @m.Change
+                                    </td>
+                                    <td>
+                                        @if (m.Item9Positive)
+                                        {
+                                            <span class="badge bg-danger-transparent text-danger"><i class="ri-alarm-warning-line me-1" aria-hidden="true"></i>@m.Item9</span>
+                                        }
+                                        else if (!string.IsNullOrEmpty(m.Item9))
+                                        {
+                                            <span class="text-muted fs-13">@m.Item9</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted fs-13">n/a</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-6">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-emotion-line me-2" aria-hidden="true"></i>Mood check-ins</div>
+                <span class="text-muted fs-13">Latest 30, 1 (low) to 10 (high)</span>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="10">
+                        <thead>
+                            <tr>
+                                <th scope="col" data-priority="1">When (ET)</th>
+                                <th scope="col">Module</th>
+                                <th scope="col">Platform</th>
+                                <th scope="col" data-priority="1">Before</th>
+                                <th scope="col" data-priority="1">After</th>
+                                <th scope="col">Change</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in Model.CheckIns)
+                            {
+                                <tr>
+                                    <td data-order="@c.SortKey">@c.When</td>
+                                    <td>@c.ModuleName</td>
+                                    <td><partial name="_Badge" model="c.Platform" /></td>
+                                    <td>@c.Before</td>
+                                    <td>@c.After</td>
+                                    <td class="rx-change">
+                                        @if (c.ChangeDirection == "up")
+                                        {
+                                            <i class="ri-arrow-up-line me-1" aria-hidden="true"></i><span class="visually-hidden">better </span>
+                                        }
+                                        else if (c.ChangeDirection == "down")
+                                        {
+                                            <i class="ri-arrow-down-line me-1" aria-hidden="true"></i><span class="visually-hidden">worse </span>
+                                        }
+                                        @c.Change
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

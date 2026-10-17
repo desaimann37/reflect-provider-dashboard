@@ -1,0 +1,226 @@
+@model Reflect.Web.Models.ViewModels.Provider.Dashboard.ProviderDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+@section Styles {
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">Dashboard</h1>
+    <p class="text-muted fs-13 mb-0">Your caseload's Reflect XR and Reflect Mobile activity, clinical flags, and RTM status.</p>
+    <div class="rx-page-actions">
+        <a class="btn btn-primary" asp-controller="Patients" asp-action="Index" asp-route-filter="attention"><i class="ri-eye-line me-1" aria-hidden="true"></i>Review flagged patients</a>
+        <a class="btn btn-outline-secondary" asp-controller="Rtm" asp-action="Index"><i class="ri-calendar-check-line me-1" aria-hidden="true"></i>Open RTM worklist</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-12 col-xxl-4">
+        <div class="card custom-card h-100 mb-0">
+            <div class="card-body d-flex align-items-center gap-3">
+                <span class="avatar avatar-lg avatar-rounded bg-primary-transparent">@Model.ProviderInitials</span>
+                <div class="rx-min-w-0">
+                    <div class="fs-18 fw-semibold">Welcome back, @Model.Greeting</div>
+                    <div class="text-muted fs-13">@Model.ProviderTitle · @Model.FacilityName</div>
+                    <div class="d-flex flex-wrap gap-2 mt-2">
+                        <span class="badge bg-primary-transparent text-primary"><i class="ri-stethoscope-line me-1" aria-hidden="true"></i>Provider</span>
+                        <span class="badge bg-info-transparent text-info"><i class="ri-calendar-2-line me-1" aria-hidden="true"></i>@Model.TodayLong</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xxl-8">
+        <div class="row g-3 h-100">
+            <div class="col-6 col-lg-3">
+                <div class="card custom-card rx-kpi h-100 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="rx-kpi-label">Active patients</span>
+                            <span class="avatar avatar-sm avatar-rounded bg-info-transparent"><i class="ri-team-line" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="rx-kpi-value">@Model.ActivePatients</div>
+                        <div class="rx-kpi-sub">@Model.EngagedLast7Days used Reflect in the last 7 days</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card custom-card rx-kpi h-100 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="rx-kpi-label">Sessions, 7 days</span>
+                            <span class="avatar avatar-sm avatar-rounded bg-success-transparent"><i class="ri-pulse-line" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="rx-kpi-value">@Model.SessionsLast7Days</div>
+                        <div class="rx-kpi-sub">VR and mobile combined</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card custom-card rx-kpi h-100 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="rx-kpi-label">Need attention</span>
+                            <span class="avatar avatar-sm avatar-rounded bg-danger-transparent"><i class="ri-alarm-warning-line" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="rx-kpi-value">@Model.NeedsAttention</div>
+                        <div class="rx-kpi-sub">@Model.UrgentCount urgent or high priority</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="card custom-card rx-kpi h-100 mb-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <span class="rx-kpi-label">RTM ready to sign</span>
+                            <span class="avatar avatar-sm avatar-rounded bg-primary-transparent"><i class="ri-quill-pen-line" aria-hidden="true"></i></span>
+                        </div>
+                        <div class="rx-kpi-value">@Model.ReadyToSign</div>
+                        <div class="rx-kpi-sub">@Model.AtRisk period@(Model.AtRisk == 1 ? "" : "s") at risk</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between">
+                <div class="card-title"><i class="ri-alarm-warning-line me-2" aria-hidden="true"></i>Needs attention</div>
+                <a class="btn btn-sm btn-primary-light" asp-controller="Patients" asp-action="Index" asp-route-filter="attention">View all</a>
+            </div>
+            <div class="card-body">
+                @if (Model.Attention.Count == 0)
+                {
+                    <div class="rx-empty"><i class="ri-checkbox-circle-line" aria-hidden="true"></i>No flags right now.</div>
+                }
+                else
+                {
+                    <ul class="rx-list">
+                        @foreach (var item in Model.Attention)
+                        {
+                            <li>
+                                <span class="avatar avatar-sm avatar-rounded bg-@(item.Insight.Severity.Color)-transparent"><i class="@item.Insight.Icon" aria-hidden="true"></i></span>
+                                <div class="rx-min-w-0 flex-grow-1">
+                                    <div class="d-flex flex-wrap align-items-center gap-2">
+                                        <a class="fw-semibold" asp-controller="Patients" asp-action="Details" asp-route-id="@item.PatientId">@item.PatientName</a>
+                                        <partial name="_Badge" model="item.Insight.Severity" />
+                                    </div>
+                                    <div class="fw-semibold fs-14 mt-1">@item.Insight.Title</div>
+                                    <div class="text-muted fs-13">@item.Insight.Detail</div>
+                                    @if (item.AlsoFlagged.Count > 0)
+                                    {
+                                        <div class="fs-12 mt-1"><i class="ri-flag-line me-1" aria-hidden="true"></i>Also: @string.Join("; ", item.AlsoFlagged)</div>
+                                    }
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-5">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-bar-chart-2-line me-2" aria-hidden="true"></i>Caseload engagement, 12 weeks</div>
+            </div>
+            <div class="card-body">
+                <div class="rx-chart">
+                    <canvas id="caseloadChart" role="img" aria-label="@Model.CaseloadChartSummary" data-chart="@Model.CaseloadChartJson"></canvas>
+                </div>
+                <p class="visually-hidden">@Model.CaseloadChartSummary</p>
+                <p class="text-muted fs-12 mb-0 mt-2">Solid bars are Reflect XR (VR); striped bars are Reflect Mobile.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12 col-xl-7">
+        <div class="card custom-card">
+            <div class="card-header justify-content-between">
+                <div class="card-title"><i class="ri-calendar-event-line me-2" aria-hidden="true"></i>RTM periods closing in 7 days</div>
+                <a class="btn btn-sm btn-primary-light" asp-controller="Rtm" asp-action="Index">Worklist</a>
+            </div>
+            <div class="card-body">
+                @if (Model.ClosingSoon.Count == 0)
+                {
+                    <div class="rx-empty"><i class="ri-calendar-check-line" aria-hidden="true"></i>No open periods close this week.</div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-bordered text-nowrap align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Patient</th>
+                                    <th scope="col">Period ends</th>
+                                    <th scope="col">Data days</th>
+                                    <th scope="col">Minutes</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in Model.ClosingSoon)
+                                {
+                                    <tr>
+                                        <td><a asp-controller="Patients" asp-action="Details" asp-route-id="@row.PatientId" asp-route-tab="rtm">@row.PatientName</a></td>
+                                        <td>@row.PeriodEnd <span class="text-muted fs-12">(@row.DaysLeft d)</span></td>
+                                        <td>@row.DataDays</td>
+                                        <td>@row.ManagementMinutes min</td>
+                                        <td><partial name="_Badge" model="row.Readiness" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-5">
+        <div class="card custom-card">
+            <div class="card-header">
+                <div class="card-title"><i class="ri-history-line me-2" aria-hidden="true"></i>Recent sessions</div>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentSessions.Count == 0)
+                {
+                    <div class="rx-empty"><i class="ri-history-line" aria-hidden="true"></i>No sessions yet.</div>
+                }
+                else
+                {
+                    <ul class="rx-list">
+                        @foreach (var session in Model.RecentSessions)
+                        {
+                            <li class="align-items-center">
+                                <span class="avatar avatar-sm avatar-rounded bg-info-transparent">@session.Initials</span>
+                                <div class="rx-min-w-0 flex-grow-1">
+                                    <a class="fw-semibold" asp-controller="Patients" asp-action="Details" asp-route-id="@session.PatientId">@session.PatientName</a>
+                                    <div class="text-muted fs-13">@session.ModuleName · @session.Duration</div>
+                                </div>
+                                <div class="text-end">
+                                    <partial name="_Badge" model="session.Platform" />
+                                    <div class="text-muted fs-12 mt-1">@session.When</div>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/libs/chart.js/chart.umd.js"></script>
+    <script src="~/js/controllers/provider/providerCharts.js" asp-append-version="true"></script>
+    <script src="~/js/controllers/provider/dashboardController.js" asp-append-version="true"></script>
+    <script nonce="@Context.GetCspNonce()">
+        ProviderDashboardController.init();
+    </script>
+}

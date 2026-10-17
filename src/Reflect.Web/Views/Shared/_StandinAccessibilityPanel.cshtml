@@ -1,0 +1,35 @@
+@* STAND-IN for the real accessibility panel. Delete on merge. *@
+<div class="offcanvas offcanvas-end" tabindex="-1" id="rxA11yPanel" aria-labelledby="rxA11yPanelLabel">
+    <div class="offcanvas-header border-bottom">
+        <h2 class="offcanvas-title fs-18" id="rxA11yPanelLabel"><i class="ri-eye-line me-2" aria-hidden="true"></i>Accessibility</h2>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+        <fieldset class="mb-4">
+            <legend class="fs-14 fw-semibold mb-2">Theme</legend>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="rxA11yTheme" id="rxA11yThemeLight" value="light" />
+                <label class="form-check-label" for="rxA11yThemeLight"><i class="ri-sun-line me-1" aria-hidden="true"></i>Light</label>
+            </div>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="rxA11yTheme" id="rxA11yThemeDark" value="dark" />
+                <label class="form-check-label" for="rxA11yThemeDark"><i class="ri-moon-line me-1" aria-hidden="true"></i>Dark</label>
+            </div>
+        </fieldset>
+        <div class="mb-4">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" role="switch" id="rxA11yColorblind" aria-describedby="rxA11yColorblindHelp" />
+                <label class="form-check-label fw-semibold" for="rxA11yColorblind">Color-blind friendly mode</label>
+            </div>
+            <div class="form-text" id="rxA11yColorblindHelp">Reduces color saturation. Status is always shown with a label and an icon as well.</div>
+        </div>
+        <div class="mb-4">
+            <label for="rxA11yTextSize" class="form-label d-flex justify-content-between">
+                <span>Text size</span><span id="rxA11yTextSizeValue" class="text-muted">100%</span>
+            </label>
+            <input type="range" class="form-range" min="0" max="5" step="1" value="1" id="rxA11yTextSize" aria-describedby="rxA11yTextSizeHelp" />
+            <div class="form-text" id="rxA11yTextSizeHelp">Scales all text and spacing on the page.</div>
+        </div>
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="rxA11yReset"><i class="ri-refresh-line me-1" aria-hidden="true"></i>Reset to defaults</button>
+    </div>
+</div>

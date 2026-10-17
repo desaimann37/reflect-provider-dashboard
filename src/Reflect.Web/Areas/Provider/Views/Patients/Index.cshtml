@@ -1,0 +1,94 @@
+@model Reflect.Web.Models.ViewModels.Provider.Caseload.CaseloadViewModel
+@{
+    ViewData["Title"] = "My caseload";
+}
+@section Styles {
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <h1 class="page-title mb-1">My caseload</h1>
+    <p class="text-muted fs-13 mb-0">Patients you monitor through Reflect XR and Reflect Mobile, sorted by clinical priority.</p>
+</div>
+
+<div class="card custom-card">
+    <div class="card-header justify-content-between">
+        <div class="card-title"><i class="ri-team-line me-2" aria-hidden="true"></i>Patients <span class="text-muted fs-13 fw-normal ms-1">@Model.Rows.Count of @Model.TotalCount</span></div>
+        <form method="get" asp-action="Index" class="d-flex align-items-center gap-2">
+            <label for="filter" class="form-label mb-0 fs-13 text-muted">Show</label>
+            <select id="filter" name="filter" class="form-select form-select-sm js-auto-submit-select" asp-items="Model.FilterOptions"></select>
+            <noscript><button type="submit" class="btn btn-sm btn-outline-secondary">Apply</button></noscript>
+        </form>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered text-nowrap align-middle dt-client w-100" data-page-length="25">
+                <thead>
+                    <tr>
+                        <th scope="col" data-priority="1">Patient</th>
+                        <th scope="col" data-priority="10">Program</th>
+                        <th scope="col" data-priority="6">Last activity</th>
+                        <th scope="col" data-priority="7">Sessions (30 d)</th>
+                        <th scope="col" data-priority="9">Minutes (30 d)</th>
+                        <th scope="col" data-priority="8">VR / Mobile</th>
+                        <th scope="col" data-priority="5">Data days</th>
+                        <th scope="col" data-priority="3">RTM status</th>
+                        <th scope="col" data-priority="4">Flags</th>
+                        <th scope="col" data-priority="2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var row in Model.Rows)
+                    {
+                        <tr>
+                            <td>
+                                <div class="rx-table-patient">
+                                    <span class="avatar avatar-sm avatar-rounded bg-info-transparent">@row.Initials</span>
+                                    <div>
+                                        <a class="fw-semibold" asp-action="Details" asp-route-id="@row.PatientId">@row.Name</a>
+                                        <div class="text-muted fs-12">@row.Mrn · @row.AgeAndPronouns</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>@row.Program</td>
+                            <td data-order="@row.LastActivitySort">@row.LastActivity</td>
+                            <td>@row.Sessions30Days</td>
+                            <td data-order="@row.Minutes30Days">@ProviderUi.Minutes(row.Minutes30Days)</td>
+                            <td>
+                                <span class="me-2" title="Reflect XR (VR)"><i class="ri-goggles-line me-1" aria-hidden="true"></i>@row.VrSessions30Days<span class="visually-hidden"> VR</span></span>
+                                <span title="Reflect Mobile"><i class="ri-smartphone-line me-1" aria-hidden="true"></i>@row.MobileSessions30Days<span class="visually-hidden"> mobile</span></span>
+                            </td>
+                            <td data-order="@row.DataDays">
+                                <div class="d-flex align-items-center gap-2">
+                                    <div class="progress rx-progress flex-grow-1" role="progressbar" aria-label="Data days" aria-valuenow="@row.DataDays" aria-valuemin="0" aria-valuemax="16">
+                                        <div class="progress-bar @(row.DataDays >= 16 ? "rx-met" : "rx-partial")" style="width: @(row.DataDaysPercent)%"></div>
+                                    </div>
+                                    <span class="fs-12">@row.DataDays / 16</span>
+                                </div>
+                            </td>
+                            <td data-order="@row.RtmSort"><partial name="_Badge" model="row.Rtm" /></td>
+                            <td data-order="@row.FlagSort">
+                                @if (row.Flags.Count == 0)
+                                {
+                                    <span class="text-muted fs-13">None</span>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-wrap gap-1">
+                                        @foreach (var flag in row.Flags)
+                                        {
+                                            <partial name="_Badge" model="flag" />
+                                        }
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-primary-light" asp-action="Details" asp-route-id="@row.PatientId"><i class="ri-eye-line me-1" aria-hidden="true"></i>View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,96 @@
+@model Reflect.Web.Models.ViewModels.Provider.PatientDetails.PatientDetailsViewModel
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["ParentTitle"] = "My caseload";
+    ViewData["ParentUrl"] = Url.Action("Index", "Patients");
+}
+@section Styles {
+    <partial name="_ProviderStyles" />
+}
+
+<div class="mb-4">
+    <div class="d-flex align-items-center gap-3">
+        <span class="avatar avatar-lg avatar-rounded bg-primary-transparent">@Model.Initials</span>
+        <div class="rx-min-w-0">
+            <h1 class="page-title mb-1">@Model.Name <span class="text-muted fs-14 fw-normal">(@Model.Pronouns)</span></h1>
+            <p class="text-muted fs-13 mb-0">@Model.Mrn · @Model.AgeLabel · @Model.Program</p>
+        </div>
+    </div>
+    <div class="rx-page-actions">
+        <a class="btn btn-primary" asp-controller="Rtm" asp-action="LogTime" asp-route-patientId="@Model.PatientId"><i class="ri-timer-line me-1" aria-hidden="true"></i>Log time</a>
+        <a class="btn btn-outline-secondary" asp-controller="Notes" asp-action="Create" asp-route-patientId="@Model.PatientId"><i class="ri-sticky-note-add-line me-1" aria-hidden="true"></i>Add note</a>
+    </div>
+</div>
+
+<div class="card custom-card">
+    <div class="card-body">
+        <div class="rx-patient-meta">
+            <span><i class="ri-stethoscope-line" aria-hidden="true"></i>@Model.DiagnosisCode · @Model.DiagnosisDescription</span>
+            <span><i class="ri-calendar-check-line" aria-hidden="true"></i>Monitoring since @Model.MonitoringSince</span>
+            <span><i class="ri-history-line" aria-hidden="true"></i>Last activity: @Model.LastActivity</span>
+            <span><i class="ri-calendar-event-line" aria-hidden="true"></i>RTM: <partial name="_Badge" model="Model.RtmBadge" /></span>
+        </div>
+    </div>
+</div>
+
+@{
+    var critical = Model.Insights.FirstOrDefault(i => i.Severity.Text == "Urgent");
+}
+@if (critical != null)
+{
+    <div class="alert alert-danger d-flex gap-3 align-items-start" role="alert">
+        <i class="ri-alarm-warning-line fs-20" aria-hidden="true"></i>
+        <div>
+            <div class="fw-semibold">@critical.Title</div>
+            <div class="fs-13">@critical.Detail This dashboard is not monitored in real time; patients are directed to 988 and local emergency services inside the Reflect apps.</div>
+        </div>
+    </div>
+}
+
+<ul class="nav nav-tabs mb-3" id="patientTabs" role="tablist">
+    <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-overview-btn" data-bs-toggle="tab" data-bs-target="#tab-overview" type="button" role="tab" aria-controls="tab-overview" aria-selected="true"><i class="ri-dashboard-3-line me-1" aria-hidden="true"></i>Overview</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-sessions-btn" data-bs-toggle="tab" data-bs-target="#tab-sessions" type="button" role="tab" aria-controls="tab-sessions" aria-selected="false"><i class="ri-history-line me-1" aria-hidden="true"></i>Sessions</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-response-btn" data-bs-toggle="tab" data-bs-target="#tab-response" type="button" role="tab" aria-controls="tab-response" aria-selected="false"><i class="ri-heart-pulse-line me-1" aria-hidden="true"></i>Therapeutic response</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-rtm-btn" data-bs-toggle="tab" data-bs-target="#tab-rtm" type="button" role="tab" aria-controls="tab-rtm" aria-selected="false"><i class="ri-calendar-check-line me-1" aria-hidden="true"></i>RTM</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-notes-btn" data-bs-toggle="tab" data-bs-target="#tab-notes" type="button" role="tab" aria-controls="tab-notes" aria-selected="false"><i class="ri-sticky-note-line me-1" aria-hidden="true"></i>Notes</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-careplan-btn" data-bs-toggle="tab" data-bs-target="#tab-careplan" type="button" role="tab" aria-controls="tab-careplan" aria-selected="false"><i class="ri-file-list-3-line me-1" aria-hidden="true"></i>Care plan</button></li>
+    <li class="nav-item" role="presentation"><button class="nav-link" id="tab-access-btn" data-bs-toggle="tab" data-bs-target="#tab-access" type="button" role="tab" aria-controls="tab-access" aria-selected="false"><i class="ri-shield-keyhole-line me-1" aria-hidden="true"></i>Access log</button></li>
+</ul>
+
+<div class="tab-content">
+    <div class="tab-pane fade show active" id="tab-overview" role="tabpanel" aria-labelledby="tab-overview-btn" tabindex="0">
+        <partial name="_OverviewTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-sessions" role="tabpanel" aria-labelledby="tab-sessions-btn" tabindex="0">
+        <partial name="_SessionsTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-response" role="tabpanel" aria-labelledby="tab-response-btn" tabindex="0">
+        <partial name="_ResponseTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-rtm" role="tabpanel" aria-labelledby="tab-rtm-btn" tabindex="0">
+        <partial name="_RtmTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-notes" role="tabpanel" aria-labelledby="tab-notes-btn" tabindex="0">
+        <partial name="_NotesTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-careplan" role="tabpanel" aria-labelledby="tab-careplan-btn" tabindex="0">
+        <partial name="_CarePlanTab" model="Model" />
+    </div>
+    <div class="tab-pane fade" id="tab-access" role="tabpanel" aria-labelledby="tab-access-btn" tabindex="0">
+        <partial name="_AccessLogTab" model="Model" />
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/assets/libs/chart.js/chart.umd.js"></script>
+    <script src="~/js/controllers/provider/providerCharts.js" asp-append-version="true"></script>
+    <script src="~/js/services/provider/patientDetailsService.js" asp-append-version="true"></script>
+    <script src="~/js/controllers/provider/patientDetailsController.js" asp-append-version="true"></script>
+    <script nonce="@Context.GetCspNonce()">
+        PatientDetailsController.init({
+            engagementUrl: '@Url.Action("EngagementData", "Patients", new { id = Model.PatientId })',
+            briefUrl: '@Url.Action("Brief", "Patients", new { id = Model.PatientId })',
+            briefErrorMessage: '@Reflect.Web.Models.Messages.ProviderMessages.BriefUnavailable'
+        });
+    </script>
+}

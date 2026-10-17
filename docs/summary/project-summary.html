@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Reflect Provider Dashboard: Project Summary</title>
+<style>
+  @font-face { font-family: "Plex Sans"; src: url("../../src/Reflect.Web/wwwroot/fonts/IBMPlexSans-Regular.woff2") format("woff2"); font-weight: 400; }
+  @font-face { font-family: "Plex Sans"; src: url("../../src/Reflect.Web/wwwroot/fonts/IBMPlexSans-Italic.woff2") format("woff2"); font-weight: 400; font-style: italic; }
+  @font-face { font-family: "Plex Sans"; src: url("../../src/Reflect.Web/wwwroot/fonts/IBMPlexSans-SemiBold.woff2") format("woff2"); font-weight: 600; }
+  @font-face { font-family: "Plex Condensed"; src: url("../../src/Reflect.Web/wwwroot/fonts/IBMPlexSansCondensed-Bold.woff2") format("woff2"); font-weight: 700; }
+
+  :root { --indigo: #1F305E; --coral: #FF8282; --slate: #586F8A; --gray: #E6E8EB; --pale: #FDE6D9; }
+  @page { size: Letter; margin: 0.5in 0.55in; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: "Plex Sans", sans-serif; font-size: 9.3pt; line-height: 1.38; color: var(--indigo); }
+  h1, h2, h3 { font-family: "Plex Condensed", sans-serif; font-weight: 700; letter-spacing: 0.02em; margin: 0; }
+  h1 { font-size: 20pt; line-height: 1.1; }
+  h2 { font-size: 11.5pt; margin: 10pt 0 4pt; padding-bottom: 2pt; border-bottom: 1.5pt solid var(--coral); }
+  h3 { font-size: 9.6pt; margin: 6pt 0 2pt; }
+  p { margin: 0 0 5pt; }
+  ul { margin: 0 0 5pt; padding-left: 13pt; }
+  li { margin-bottom: 2pt; }
+  strong { font-weight: 600; }
+  .muted { color: var(--slate); }
+  .header { display: flex; justify-content: space-between; align-items: flex-end; gap: 12pt; padding-bottom: 6pt; border-bottom: 3pt solid var(--indigo); }
+  .header .meta { text-align: right; font-size: 8.5pt; color: var(--slate); line-height: 1.35; white-space: nowrap; }
+  .tagline { font-size: 10pt; margin-top: 3pt; color: var(--slate); }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16pt; }
+  .hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 12pt; align-items: start; margin-top: 8pt; }
+  .hero img { width: 100%; border: 0.75pt solid var(--slate); border-radius: 4pt; }
+  .caption { font-size: 7.5pt; color: var(--slate); margin-top: 2pt; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6pt; margin: 8pt 0 2pt; }
+  .kpi { background: var(--gray); border-radius: 4pt; padding: 5pt 7pt; }
+  .kpi b { display: block; font-family: "Plex Condensed", sans-serif; font-size: 14pt; }
+  .kpi span { font-size: 7.6pt; color: var(--slate); }
+  table { width: 100%; border-collapse: collapse; font-size: 8.2pt; margin: 2pt 0 5pt; }
+  th, td { text-align: left; padding: 2.5pt 4pt; border-bottom: 0.5pt solid #D8DCE1; vertical-align: top; }
+  th { font-family: "Plex Condensed", sans-serif; font-weight: 700; color: var(--slate); }
+  code { font-family: "Plex Condensed", sans-serif; font-weight: 700; background: var(--gray); padding: 0 3pt; border-radius: 2pt; font-size: 8pt; }
+  .flow { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt; margin: 4pt 0 6pt; font-size: 8pt; }
+  .lane { border-radius: 4pt; padding: 5pt 7pt; }
+  .lane.analytics { background: #EEF1F5; border-left: 3pt solid var(--slate); }
+  .lane.clinical { background: var(--pale); border-left: 3pt solid var(--coral); }
+  .lane b { font-family: "Plex Condensed", sans-serif; font-size: 8.8pt; display: block; margin-bottom: 1pt; }
+  .join { grid-column: 1 / -1; background: var(--indigo); color: #FAFAFB; border-radius: 4pt; padding: 4pt 7pt; }
+  .join code { background: rgba(250, 250, 251, 0.18); color: #FAFAFB; }
+  .page-break { break-before: page; }
+  .footer-note { margin-top: 6pt; font-size: 7.5pt; color: var(--slate); border-top: 0.5pt solid #D8DCE1; padding-top: 4pt; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>Reflect Provider Dashboard</h1>
+    <div class="tagline">Engagement, therapeutic response and RTM workflow for clinicians using Reflect XR and Reflect Mobile</div>
+  </div>
+  <div class="meta">
+    George Mason University · Challenge X<br />
+    Sponsor: Persistent Technology, Inc. (PTI)<br />
+    Team NinjaB · October 2026
+  </div>
+</div>
+
+<div class="hero">
+  <div>
+    <h2 style="margin-top:0">The problem</h2>
+    <p>Reflect XR (VR art-making) and Reflect Mobile give patients creative tools for emotional processing between therapy sessions. Their clinicians can't see any of it. Progress is judged from what a patient remembers to report. Remote Therapeutic Monitoring (RTM) could fund this follow-up, but only if the practice can show the required data days, management time and live contact.</p>
+    <h2>What we built</h2>
+    <p>A working, HIPAA-minded <strong>Provider area</strong> inside the Reflect XR web app. It's built to PTI's extension spec so it can merge with a file copy, not a rewrite. It pulls product analytics and clinical data together for each patient and turns them into three things a clinician acts on:</p>
+    <ul>
+      <li><strong>Who needs attention</strong>, through explainable flags. These include PHQ-9 item 9, a 5-point PHQ-9 worsening, inactivity, engagement drop and mood decline.</li>
+      <li><strong>How the patient is responding</strong>: PHQ-9/GAD-7 trends, mood before and after each session, VR vs mobile use, module mix, and an optional AI pre-session brief.</li>
+      <li><strong>What RTM needs this month</strong>: data days, management minutes, live calls, the 2026 CPT codes the numbers support, and one-click period sign-off.</li>
+    </ul>
+  </div>
+  <div>
+    <img src="../screenshots/dashboard.png" alt="Provider dashboard" />
+    <div class="caption">Dashboard: caseload KPIs, patients needing attention, VR (solid) vs mobile (striped) engagement. All data synthetic.</div>
+    <div class="kpis">
+      <div class="kpi"><b>8</b><span>screens and forms</span></div>
+      <div class="kpi"><b>10</b><span>clinical flag rules</span></div>
+      <div class="kpi"><b>6</b><span>RTM CPT codes</span></div>
+      <div class="kpi"><b>83</b><span>automated tests</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <h2>Screens</h2>
+    <table>
+      <tr><th>Screen</th><th>For the clinician</th></tr>
+      <tr><td>Dashboard</td><td>Caseload KPIs, one-row-per-patient attention list, 12-week engagement, periods closing this week</td></tr>
+      <tr><td>My caseload</td><td>Sortable list: activity, VR/mobile split, data-day progress, RTM status, flags</td></tr>
+      <tr><td>Patient details</td><td>Tabs: Overview (insights, AI brief, charts), Sessions, Therapeutic response, RTM, Notes, Care plan, Access log</td></tr>
+      <tr><td>RTM worklist</td><td>Every current period with the reason it's at risk and the next step</td></tr>
+      <tr><td>Outcomes report</td><td>Mood change by module, PHQ-9 change by engagement level, VR vs mobile (correlational)</td></tr>
+      <tr><td>Forms</td><td>Log time (with live-call method), add note, edit care plan (read-only view first)</td></tr>
+    </table>
+  </div>
+  <div>
+    <h2>Clinical logic, explained</h2>
+    <p><strong>Flags are rules, not black boxes.</strong> Each one states its threshold and evidence, for example "PHQ-9 up 6 points: from 9 (mild) to 15 (moderately severe) since 10/6/2026". Severity bands follow the published PHQ-9 and GAD-7 cut-offs. A positive item 9 raises an urgent banner. The banner reminds users that the dashboard isn't real-time crisis monitoring and that patients are directed to 988 in the apps.</p>
+    <p><strong>AI where it's safe.</strong> The pre-session brief is rule-based by default. With an API key, Claude writes it from a <em>de-identified</em> summary: age band, "days ago", aggregates and flag titles. It never sees a name, MRN, date or patient free text, and a unit test enforces this. Failures fall back to the rules, and output is labelled "AI draft".</p>
+    <h2>How we checked it</h2>
+    <p>Every screen was run in a real browser in light, dark, color-blind and 125% text modes, at phone, tablet and desktop widths, with zero console errors or CSP violations. An End User is denied access, another provider's patient returns 404, and forms reject invalid input.</p>
+  </div>
+</div>
+
+<div class="page-break"></div>
+
+<h2 style="margin-top:0">How the data flows: analytics kept apart from clinical data</h2>
+<div class="flow">
+  <div class="lane analytics"><b>Product analytics (no PHI)</b>The apps log four events (<code>module_start</code>, <code>creation_saved</code>, <code>module_complete</code>, <code>module_exit</code>) to Firebase Analytics, under a pseudonymous key only. A backend job queries the BigQuery export every 15 minutes and maps events into <code>EngagementSession</code> rows. The demo runs the same mapper on synthetic GA4-shaped events.</div>
+  <div class="lane clinical"><b>Clinical data (PHI, under BAA)</b>Mood check-ins and PHQ-9/GAD-7 answers go to Reflect.Api, never Firebase. They're stored as FHIR-style <code>Observation</code> rows with LOINC codes where they exist. Future therapeutic-response and RPM data (heart rate <code>8867-4</code>, sleep, HRV) become new codes with <code>Source = Device</code>, with no schema change.</div>
+  <div class="join"><strong>The only join</strong> is <code>PatientAppLink</code>: patient ↔ pseudonymous app key, plus the patient's data-sharing consent. It's stored only in Azure SQL, so analytics alone identify no one.</div>
+</div>
+
+<div class="grid">
+  <div>
+    <h2>RTM as a clinical workflow</h2>
+    <table>
+      <tr><th>Code</th><th>What the app checks</th></tr>
+      <tr><td><code>98975</code></td><td>Setup and education recorded in this period (once per episode)</td></tr>
+      <tr><td><code>98986</code> / <code>98978</code></td><td>2-15 / 16-30 qualifying data days in the 30-day period</td></tr>
+      <tr><td><code>98979</code> / <code>98980</code></td><td>10-19 / 20+ management minutes in the calendar month, with a real-time interactive call</td></tr>
+      <tr><td><code>98981</code></td><td>Each additional full 20 minutes</td></tr>
+    </table>
+    <p>Each period is <em>on track</em>, <em>at risk</em>, <em>ready to sign</em> or <em>signed</em>, with plain-English reasons such as "Needs 4 more data days in the next 9 days". The RTM tab reproduces the brief's monitoring-status table: data days, sessions, engagement minutes, therapeutic-response entries, provider reviews, patient communications, management time and documentation status. Thresholds sit in one config record, and the screens label the results as decision support for billing review.</p>
+
+    <h2>Privacy and security</h2>
+    <ul>
+      <li>One named policy on every controller. Providers see only their caseload, and another provider's patient returns <em>not found</em>, so the record's existence isn't revealed.</li>
+      <li>A <strong>PHI access log</strong> records every record view and AI brief. Patient pages send <code>no-store</code>, and every POST has anti-forgery protection.</li>
+      <li>The real app's CSP, run in the stricter per-request-nonce mode PTI is adopting: zero violations across every screen.</li>
+    </ul>
+  </div>
+  <div>
+    <h2>Built to merge into Reflect XR</h2>
+    <ul>
+      <li>.NET 10 MVC: one new Area, thin controllers, fat ViewModels (<code>PrepareData</code> / <code>PrepareDataForSave</code>), and repository interfaces with in-memory stand-ins that EF Core replaces.</li>
+      <li>The spec's exact contracts (<code>BaseEntity</code>, <code>ICurrentUserService</code>, <code>EntityNotFoundException</code>), the brand tokens and IBM Plex. Light/dark, color-blind and text-size modes, with no colors hard-coded in our screens.</li>
+      <li>Stand-ins (shell, sign-in, data, shared JS services) are isolated in two folders so they can simply be deleted. The menu is delivered as JSON in the real format. Every library is vendored at the spec's versions, with no CDN.</li>
+      <li><strong>83 tests.</strong> They cover the RTM thresholds, insight rules, event mapping, Eastern-time dates and the de-identification boundary. They also turn the spec's code-review rules into tests: icons exist in RemixIcon 4.2, nonces, no inline handlers, rem units, anti-forgery on POSTs, the policy on every controller, and no <code>string?</code>.</li>
+      <li>Accessibility: status is always a label plus an icon. Chart series differ by pattern, not only color. Everything is sized in rem, and there's no horizontal scroll at phone, tablet or desktop widths.</li>
+    </ul>
+
+    <h2>Next steps with PTI</h2>
+    <ul>
+      <li>Validate the flag thresholds and RTM rules with PTI's clinical SMEs and billing/compliance team. Usability-test with 3-5 clinicians.</li>
+      <li>Build the BigQuery sync job and the Reflect.Api observation and questionnaire endpoints (specified in <code>docs/API.md</code>). Add the four app events.</li>
+      <li>Map <code>ProviderOnly</code> to the real role and add the repositories to <code>IUnitOfWork</code>. Swap the brief to PTI's OpenAI service if preferred, under a BAA.</li>
+      <li>Later: FHIR export to EHRs, RPM device data, and outcome cohorts across facilities.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer-note">All patient data in the prototype is synthetic. RTM code logic is decision support based on the 2026 CPT descriptors, not billing advice. Source, setup and architecture documentation: README.md, docs/ARCHITECTURE.md, docs/API.md, docs/SETUP.md.</div>
+
+</body>
+</html>

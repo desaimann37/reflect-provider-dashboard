@@ -75,24 +75,32 @@ window.PatientDetailsController = (function (window, document, $) {
         };
     }
 
-    function severityGuides(p) {
-        var bands = [5, 10, 15, 20];
+    function severityBands(p) {
+        // PHQ-9 bands (Kroenke 2001), shaded lightly and labelled so they don't rely on color.
+        var bands = [
+            { from: 0, to: 5, label: 'Minimal' },
+            { from: 5, to: 10, label: 'Mild' },
+            { from: 10, to: 15, label: 'Moderate' },
+            { from: 15, to: 20, label: 'Moderately severe' },
+            { from: 20, to: 27, label: 'Severe' }
+        ];
         return {
-            id: 'rxSeverityGuides',
+            id: 'rxSeverityBands',
             beforeDatasetsDraw: function (chart) {
                 var y = chart.scales.y;
                 var area = chart.chartArea;
                 var ctx = chart.ctx;
                 ctx.save();
-                ctx.strokeStyle = p.grid;
-                ctx.setLineDash([4, 4]);
-                ctx.lineWidth = 1;
-                bands.forEach(function (value) {
-                    var py = y.getPixelForValue(value);
-                    ctx.beginPath();
-                    ctx.moveTo(area.left, py);
-                    ctx.lineTo(area.right, py);
-                    ctx.stroke();
+                ctx.font = '600 ' + window.ProviderCharts.rootPx(0.6875) + 'px ' + p.font;
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'middle';
+                bands.forEach(function (band, i) {
+                    var top = y.getPixelForValue(band.to);
+                    var bottom = y.getPixelForValue(band.from);
+                    ctx.fillStyle = i % 2 === 0 ? 'rgba(0, 0, 0, 0)' : p.bandFill;
+                    ctx.fillRect(area.left, top, area.right - area.left, bottom - top);
+                    ctx.fillStyle = p.muted;
+                    ctx.fillText(band.label, area.right + 8, (top + bottom) / 2);
                 });
                 ctx.restore();
             }
@@ -111,10 +119,11 @@ window.PatientDetailsController = (function (window, document, $) {
                     ]
                 },
                 options: {
+                    layout: { padding: { right: window.ProviderCharts.rootPx(7.5) } },
                     plugins: { legend: { position: 'bottom', labels: { usePointStyle: true } } },
-                    scales: { y: { min: 0, max: 27, ticks: { stepSize: 5 }, title: { display: true, text: 'Score (lower is better)' } }, x: { grid: { display: false } } }
+                    scales: { y: { min: 0, max: 27, afterBuildTicks: function (axis) { axis.ticks = [0, 5, 10, 15, 20, 25].map(function (v) { return { value: v }; }); }, grid: { display: false }, title: { display: true, text: 'Score (lower is better)' } }, x: { grid: { display: false } } }
                 },
-                plugins: [severityGuides(p)]
+                plugins: [severityBands(p)]
             };
         };
     }

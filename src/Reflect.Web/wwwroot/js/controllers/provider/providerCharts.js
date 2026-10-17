@@ -48,6 +48,7 @@ window.ProviderCharts = (function (window, document) {
             warning: rgb('--warning-rgb'),
             info: rgb('--info-rgb'),
             infoSoft: rgb('--info-rgb', 0.35),
+            bandFill: rgb('--info-rgb', 0.08),
             text: css('--default-text-color'),
             muted: css('--text-muted'),
             grid: css('--default-border'),

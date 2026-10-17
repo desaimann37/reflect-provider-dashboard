@@ -7,3 +7,8 @@
 *.eot binary
 *.pdf binary
 *.ico binary
+
+# Vendored third-party files must stay byte-identical to upstream (spec: do not edit vendor files)
+src/Reflect.Web/wwwroot/assets/libs/** -text
+src/Reflect.Web/wwwroot/fonts/** -text
+brand-assets/** -text
